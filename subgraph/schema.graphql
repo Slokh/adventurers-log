@@ -1,0 +1,16 @@
+type LogItem @entity {
+  id: ID!
+  timestamp: Int!
+  tokenAddress: String!
+  tokenId: BigInt
+  adventurer: Adventurer!
+  interactedWith: Adventurer!
+  value: BigInt
+  action: Int!
+  transactionHash: String!
+}
+
+type Adventurer @entity {
+  id: ID!
+  log: [LogItem!]! @derivedFrom(field: "adventurer")
+}
