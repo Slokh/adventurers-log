@@ -6,7 +6,7 @@ import theme from "../theme";
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider theme={theme}>
-      <title>Adventurer's Logs</title>
+      <title>Adventurer's Log</title>
       <Component {...pageProps} />
     </ChakraProvider>
   );
