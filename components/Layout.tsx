@@ -1,42 +1,50 @@
-import { Flex, Input, Stack, Text, Image, Link } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Image,
+  Input,
+  Link,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { isAddress } from "ethers/lib/utils";
 import { useRouter } from "next/dist/client/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const Layout = ({
   address,
+  sidebar,
   children,
 }: {
   address: string;
+  sidebar?: React.ReactNode;
   children: React.ReactNode;
 }) => {
   const router = useRouter();
   const [input, setInput] = useState(address);
 
-  useEffect(() => {
+  const handleClick = () => {
     if (isAddress(input)) {
       router.push(`/adventurer/${input}`);
-    } else if (Number.isNaN(input)) {
-      const i = parseInt(input, 10);
-      // TODO: Handle loot bag history
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [input]);
+  };
 
   return (
     <Stack
       direction={{ base: "column", lg: "row" }}
       fontFamily="EB Garamond"
       bgColor="#1A1A1A"
-      minH="100vh"
+      minH={{ base: "", lg: "100vh" }}
+      maxH={{ base: "", lg: "100vh" }}
       spacing={6}
       w="full"
     >
       <Stack
+        overflowX="auto"
+        overflowY="auto"
         maxW={{ base: "full", lg: "4xl" }}
-        minH={{ base: "", lg: "100vh" }}
         align="center"
-        spacing={8}
+        spacing={6}
         p={8}
       >
         <Text
@@ -44,21 +52,25 @@ export const Layout = ({
           fontSize="6xl"
           lineHeight="1"
         >{`Adventurer's Log`}</Text>
-        <Flex direction="column" minW="sm" maxW="sm" textAlign="center">
+        <Flex direction="column" minW={{ base: "", md: "sm" }} maxW="sm">
           <Text>{`Adventurer's Address`}</Text>
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.currentTarget.value)}
-            textAlign="center"
-            color="#1A1A1A"
-            fontWeight="semibold"
-            borderWidth={4}
-            borderColor="#554E3D"
-            boxShadow="inset 0 0 3px #554E3D"
-            bgColor="#D4C29B"
-          />
+          <Stack direction="row" align="center">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.currentTarget.value)}
+              textAlign="center"
+              color="#1A1A1A"
+              fontWeight="semibold"
+              borderWidth={4}
+              borderColor="#554E3D"
+              boxShadow="inset 0 0 3px #554E3D"
+              bgColor="#D4C29B"
+            />
+            <Button size="sm" onClick={handleClick}>
+              View
+            </Button>
+          </Stack>
         </Flex>
-
         <Stack
           fontSize="sm"
           fontWeight="normal"
@@ -77,11 +89,14 @@ export const Layout = ({
             </Link>
           </Flex>
         </Stack>
+        {sidebar}
       </Stack>
       <Flex
         flexGrow={1}
-        minH={{ base: "", lg: "100vh" }}
-        maxH={{ base: "", lg: "100vh" }}
+        direction="column"
+        overflowX="auto"
+        overflowY="auto"
+        whiteSpace="nowrap"
         bgColor="#D4C29B"
         borderWidth={6}
         borderColor="#554E3D"

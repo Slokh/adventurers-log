@@ -1,30 +1,59 @@
-import { Flex } from "@chakra-ui/react";
+import { Link, Stack, Text } from "@chakra-ui/react";
+import { formatEther } from "@ethersproject/units";
 import { isAddress } from "ethers/lib/utils";
 import type { GetServerSideProps } from "next";
 import { AdventureEvent } from "../../components/AdventureEvents";
+import { AbilityScores } from "../../components/AdventureEvents/AbilityScoreEvents";
+import { LootBag } from "../../components/AdventureEvents/LootEvents";
 import Layout from "../../components/Layout";
-import { LogItem } from "../../types";
+import { Adventurer, LogItem } from "../../types";
 
-const AdventurersLog = ({
-  address,
-  logs,
-}: {
-  address: string;
-  logs: LogItem[];
-}) => (
-  <Layout address={address}>
-    <Flex
-      direction="column"
-      w="full"
-      color="#1A1A1A"
-      overflowX="auto"
-      whiteSpace="nowrap"
-      p={2}
-    >
-      {logs.map((logItem, i) => (
+const AdventurersLog = ({ adventurer }: { adventurer: Adventurer }) => (
+  <Layout
+    address={adventurer.id}
+    sidebar={
+      <Stack w="full">
+        <Stack
+          direction={{ base: "column", md: "row" }}
+          align={{ base: "", md: "center" }}
+          spacing={1}
+        >
+          <Text>Adventurer</Text>
+          <Link
+            href={`/adventurer/${adventurer.id}`}
+            isExternal
+            fontWeight="semibold"
+            color="#55431C"
+            _hover={{ color: "#88764F" }}
+          >
+            {adventurer.id}
+          </Link>
+        </Stack>
+        <Text>{`Adventure Gold: ${parseFloat(
+          formatEther(adventurer.adventureGold)
+        ).toFixed(2)}`}</Text>
+        <Text>{`Loot (${adventurer.loot.length})`}</Text>
+        {adventurer.loot?.map((tokenId) => (
+          <Stack key={tokenId} direction="row" align="center">
+            <Text>-</Text>
+            <LootBag tokenId={parseInt(tokenId)} />
+          </Stack>
+        ))}
+        <Text>{`Ability Scores (${adventurer.abilityScore.length})`}</Text>
+        {adventurer.abilityScore?.map((tokenId) => (
+          <Stack key={tokenId} direction="row" align="center">
+            <Text>-</Text>
+            <AbilityScores tokenId={parseInt(tokenId)} />
+          </Stack>
+        ))}
+      </Stack>
+    }
+  >
+    {adventurer.log
+      .sort((a: LogItem, b: LogItem) => b.timestamp - a.timestamp)
+      .map((logItem, i) => (
         <AdventureEvent key={i} logItem={logItem} />
       ))}
-    </Flex>
   </Layout>
 );
 
@@ -42,11 +71,11 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       ? "http://localhost:3000"
       : "https://adventurers-log.slokh.gg";
 
-  const { logs } = await (
+  const adventurer = await (
     await fetch(`${host}/api/adventurers/${address}`)
   ).json();
 
-  if (!logs?.length) {
+  if (!adventurer) {
     return {
       notFound: true,
     };
@@ -54,8 +83,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   return {
     props: {
-      address,
-      logs,
+      adventurer,
     },
   };
 };

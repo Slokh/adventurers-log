@@ -13,6 +13,9 @@ function loadAventurer(address: string): Adventurer {
   let adventurer = Adventurer.load(address);
   if (adventurer == null) {
     adventurer = new Adventurer(address);
+    adventurer.adventureGold = BigInt.fromI32(0);
+    adventurer.abilityScore = new Array<BigInt>();
+    adventurer.loot = new Array<BigInt>();
   }
   return adventurer as Adventurer;
 }
@@ -116,6 +119,19 @@ export function handleLootTransfer(event: LootTransfer): void {
   let fromLogItem = createLootLogItem(event, Action.Sell);
   let toLogItem = createLootLogItem(event, Action.Buy);
 
+  let fromLoot = fromAdventurer.loot;
+  let newFromLoot = new Array<BigInt>();
+  for (let i = 0; i < fromLoot.length; i++) {
+    if (!fromLoot[i].equals(event.params.tokenId)) {
+      newFromLoot.push(fromLoot[i]);
+    }
+  }
+  fromAdventurer.loot = newFromLoot;
+
+  let toLoot = toAdventurer.loot;
+  toLoot.push(event.params.tokenId);
+  toAdventurer.loot = toLoot;
+
   fromAdventurer.save();
   toAdventurer.save();
   fromLogItem.save();
@@ -130,6 +146,19 @@ export function handleAbilityScoreTransfer(event: AbilityScoreTransfer): void {
   let toAdventurer = loadAventurer(to);
   let fromLogItem = createAbilityScoreLogItem(event, Action.Sell);
   let toLogItem = createAbilityScoreLogItem(event, Action.Buy);
+
+  let fromAbilityScore = fromAdventurer.abilityScore;
+  let newFromAbilityScore = new Array<BigInt>();
+  for (let i = 0; i < fromAbilityScore.length; i++) {
+    if (!fromAbilityScore[i].equals(event.params.tokenId)) {
+      newFromAbilityScore.push(fromAbilityScore[i]);
+    }
+  }
+  fromAdventurer.abilityScore = newFromAbilityScore;
+
+  let toAbilityScore = toAdventurer.abilityScore;
+  toAbilityScore.push(event.params.tokenId);
+  toAdventurer.abilityScore = toAbilityScore;
 
   fromAdventurer.save();
   toAdventurer.save();
@@ -147,6 +176,13 @@ export function handleAdventureGoldTransfer(
   let toAdventurer = loadAventurer(to);
   let fromLogItem = createAdventureGoldLogItem(event, Action.Sell);
   let toLogItem = createAdventureGoldLogItem(event, Action.Buy);
+
+  fromAdventurer.adventureGold = fromAdventurer.adventureGold.minus(
+    event.params.value
+  );
+  toAdventurer.adventureGold = toAdventurer.adventureGold.plus(
+    event.params.value
+  );
 
   fromAdventurer.save();
   toAdventurer.save();

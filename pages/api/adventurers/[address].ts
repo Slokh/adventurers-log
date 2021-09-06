@@ -2,7 +2,7 @@ import { isAddress } from "ethers/lib/utils";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { LogItem } from "../../../types";
 
-const fetchAdventurersLog = async (address: string): Promise<LogItem[]> => {
+const fetchAdventurer = async (address: string): Promise<LogItem[]> => {
   if (!isAddress(address)) {
     return [];
   }
@@ -17,6 +17,10 @@ const fetchAdventurersLog = async (address: string): Promise<LogItem[]> => {
       body: JSON.stringify({
         query: `{
             adventurer(id: "${address.toLowerCase()}") {
+              id
+              loot
+              abilityScore
+              adventureGold
               log {
                 id
                 timestamp
@@ -30,6 +34,7 @@ const fetchAdventurersLog = async (address: string): Promise<LogItem[]> => {
                 }
                 action
                 value
+                transactionHash
               }
             }
           }`,
@@ -39,24 +44,20 @@ const fetchAdventurersLog = async (address: string): Promise<LogItem[]> => {
 
   if (response.status !== 200) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return fetchAdventurersLog(address);
+    return fetchAdventurer(address);
   }
 
   const { data } = await response.json();
 
-  return (
-    data?.adventurer?.log?.sort(
-      (a: LogItem, b: LogItem) => b.timestamp - a.timestamp
-    ) || []
-  );
+  return data?.adventurer;
 };
 
 const handler = async ({ query }: NextApiRequest, res: NextApiResponse) => {
   const { address } = query;
 
-  const logs = await fetchAdventurersLog(address as string);
+  const adventurer = await fetchAdventurer(address as string);
 
-  res.status(200).json({ logs });
+  res.status(200).json(adventurer);
 };
 
 export default handler;

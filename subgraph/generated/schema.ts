@@ -161,6 +161,33 @@ export class Adventurer extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get adventureGold(): BigInt {
+    let value = this.get("adventureGold");
+    return value.toBigInt();
+  }
+
+  set adventureGold(value: BigInt) {
+    this.set("adventureGold", Value.fromBigInt(value));
+  }
+
+  get loot(): Array<BigInt> {
+    let value = this.get("loot");
+    return value.toBigIntArray();
+  }
+
+  set loot(value: Array<BigInt>) {
+    this.set("loot", Value.fromBigIntArray(value));
+  }
+
+  get abilityScore(): Array<BigInt> {
+    let value = this.get("abilityScore");
+    return value.toBigIntArray();
+  }
+
+  set abilityScore(value: Array<BigInt>) {
+    this.set("abilityScore", Value.fromBigIntArray(value));
+  }
+
   get log(): Array<string> {
     let value = this.get("log");
     return value.toStringArray();

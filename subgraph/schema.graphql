@@ -12,5 +12,8 @@ type LogItem @entity {
 
 type Adventurer @entity {
   id: ID!
+  adventureGold: BigInt!
+  loot: [BigInt!]!
+  abilityScore: [BigInt!]!
   log: [LogItem!]! @derivedFrom(field: "adventurer")
 }
